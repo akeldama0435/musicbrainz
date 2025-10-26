@@ -1,0 +1,172 @@
+// ==UserScript==
+// @name         Import CDJapan Releases to MusicBrainz
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Adds a button on CDJapan product pages that pre-fills a MusicBrainz release form using POST, including automatic artist MBID lookup
+// @author       Akeldama
+// @match        https://www.cdjapan.co.jp/product/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function waitForElement(selector, timeout = 15000) {
+        return new Promise((resolve, reject) => {
+            const el = document.querySelector(selector);
+            if (el) return resolve(el);
+
+            const observer = new MutationObserver(() => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    observer.disconnect();
+                    resolve(element);
+                }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            if (timeout) {
+                setTimeout(() => {
+                    observer.disconnect();
+                    reject(`Timeout waiting for selector: ${selector}`);
+                }, timeout);
+            }
+        });
+    }
+
+    async function fetchArtistMBID(artistName) {
+        try {
+            const url = `https://musicbrainz.org/ws/2/artist/?query=artist:${encodeURIComponent(artistName)}&fmt=json`;
+            const response = await fetch(url, { headers: { 'User-Agent': 'CDJapan-MB-Importer/1.0 ( your-email@example.com )' } });
+            const data = await response.json();
+            if (data.artists && data.artists.length > 0) {
+                return data.artists[0].id; // Take first match
+            }
+        } catch (err) {
+            console.error('Error fetching MBID:', err);
+        }
+        return null;
+    }
+
+    async function init() {
+        try {
+            // Wait for product title
+            const titleEl = await waitForElement('.product_info > h1:nth-child(2)');
+            const title = titleEl.textContent.trim();
+
+            // Extract artist
+            const artistEl = document.querySelector('.person > a:nth-child(1)');
+            const artist = artistEl ? artistEl.textContent.trim() : 'Unknown Artist';
+
+            // Extract catalog number
+            const catalogEl = document.querySelector('div.row:nth-child(7) > div:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2)');
+            const catalogNumber = catalogEl ? catalogEl.textContent.trim() : '';
+
+            // Extract barcode
+            const barcodeEl = document.querySelector('div.row:nth-child(7) > div:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1)');
+            const barcode = barcodeEl ? barcodeEl.textContent.trim() : '';
+
+            // Extract release date
+            const releaseDateEl = document.querySelector('.basic-info > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1)');
+            let day='', month='', year='';
+            if (releaseDateEl) {
+                const dateStr = releaseDateEl.textContent.trim(); // e.g. "October 3, 2025"
+                const dateObj = new Date(dateStr);
+                if (!isNaN(dateObj)) {
+                    day = dateObj.getDate();
+                    month = dateObj.getMonth() + 1; // months 0-11
+                    year = dateObj.getFullYear();
+                }
+            }
+
+            // Extract tracks
+            const trackRows = document.querySelectorAll('.tracklist > tbody:nth-child(1) > tr');
+            const tracks = [];
+            trackRows.forEach((tr, idx) => {
+                const trackTitleEl = tr.querySelector('td:nth-child(2)');
+                const trackTitle = trackTitleEl ? trackTitleEl.textContent.trim() : '';
+                if (trackTitle) {
+                    tracks.push(trackTitle);
+                }
+            });
+
+            // Insert MusicBrainz button
+            const btn = document.createElement('button');
+            btn.textContent = 'Add to MusicBrainz';
+            btn.style.margin = '10px';
+            btn.style.padding = '5px 10px';
+            btn.style.fontSize = '14px';
+            btn.style.cursor = 'pointer';
+            titleEl.parentNode.insertBefore(btn, titleEl.nextSibling);
+
+            btn.addEventListener('click', async () => {
+                // Fetch artist MBID
+                const mbid = await fetchArtistMBID(artist);
+
+                // Build form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'https://musicbrainz.org/release/add';
+                form.target = '_blank';
+
+                const addInput = (name, value) => {
+                    if (value !== null && value !== undefined) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+                };
+
+                // Release fields
+                addInput('name', title);
+                addInput('artist_credit.names.0.artist.name', artist);
+                addInput('artist_credit.names.0.name', artist);
+                if (mbid) addInput('artist_credit.names.0.mbid', mbid);
+                addInput('labels.0.catalog_number', catalogNumber);
+                addInput('barcode', barcode); // Correct barcode field
+
+                // Release date
+                addInput('date.year', year);
+                addInput('date.month', month);
+                addInput('date.day', day);
+
+                // Other release info
+                addInput('country', 'JP');
+                addInput('status', 'official');
+                addInput('language', 'Eng');
+                addInput('script', 'Latn');
+                addInput('packaging', 'Jewel Case'); // Added packaging
+
+                // Set edit note
+                addInput('edit_note', `Imported from ${window.location.href}`);
+
+                // URLs
+                addInput('urls.0.url', window.location.href);
+                addInput('urls.0.type', 79); // purchase_for_mail_order
+
+                // Medium format
+                addInput('mediums.0.format', 'CD');
+
+                // Tracks
+                tracks.forEach((trackTitle, idx) => {
+                    addInput(`mediums.0.track.${idx}.name`, trackTitle);
+                    addInput(`mediums.0.track.${idx}.artist_credit.names.0.name`, artist);
+                    addInput(`mediums.0.track.${idx}.artist_credit.names.0.artist.name`, artist);
+                    if (mbid) addInput(`mediums.0.track.${idx}.artist_credit.names.0.mbid`, mbid);
+                });
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+            });
+
+        } catch (err) {
+            console.error('Failed to insert MusicBrainz button:', err);
+        }
+    }
+
+    init();
+})();
