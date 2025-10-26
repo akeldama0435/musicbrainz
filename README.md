@@ -10,3 +10,6 @@ The script adds a button next to the artist name in the release page to find (tr
 ## CDJapan Importer
 Creates a button on a CDJapan release page to pre-fill submission for a new release.
 The script adds a button next to the artist name in the release page to find (tries to guess) the MusicBrainz artist page.
+
+## Scroll to Bottom Button
+Good to use when importing many recording streaming links to reduce scrolling. This press lands you on the bottom to submit edits.
