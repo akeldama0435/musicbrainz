@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        MusicBrainz: Paste-A-Date! (2025 update, month names fixed)
+// @name        MusicBrainz: Paste-A-Date!
 // @description Paste a full or partial date directly into any year field on MusicBrainz (release + relationship editors)
 // @version     2025-10-25
 // @author      - based off https://gist.github.com/JesseWeinstein/368bddf748f4faf44b5775addf7f3db0
