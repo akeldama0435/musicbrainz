@@ -159,7 +159,7 @@
                 addInput('date.year', year);
                 addInput('date.month', month);
                 addInput('date.day', day);
-                addInput('country', 'JP');
+                addInput('country', 'XW');
                 addInput('status', 'official');
                 addInput('language', 'eng');
                 addInput('script', 'latn');
