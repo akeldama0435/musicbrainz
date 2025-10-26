@@ -11,5 +11,9 @@ The script adds a button next to the artist name in the release page to find (tr
 Creates a button on a CDJapan release page to pre-fill submission for a new release.
 The script adds a button next to the artist name in the release page to find (tries to guess) the MusicBrainz artist page.
 
+## Harmony Button
+Creates a button on a MusicBrainz digital release page to open up Harmony. 
+
 ## Scroll to Bottom Button
 Good to use when importing many recording streaming links to reduce scrolling. This press lands you on the bottom to submit edits.
+
