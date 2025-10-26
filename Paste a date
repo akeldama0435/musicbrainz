@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name        Paste-A-Date!
+// @name        Paste a date
 // @description Paste a full or partial date directly into any year field on MusicBrainz (release + relationship editors)
-// @version     2025-10-25
+// @version     0.2
 // @author      -
-// @namespace   https://musicbrainz.org/
+// @namespace   https://github.com/akeldama0435/musicbrainz_userscripts_repo
 // @match       *://musicbrainz.org/*
 // @match       *://beta.musicbrainz.org/*
 // @grant       none
