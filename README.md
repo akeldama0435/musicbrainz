@@ -14,6 +14,9 @@ The script adds a button next to the artist name in the release page to find (tr
 ## Harmony Button
 Creates a button on a MusicBrainz digital release page to open up Harmony. 
 
+## Harmony open recording links
+Creates a button on the top right of the Harmony Release Actions to open recordings in a new tab and pre-fill the streaming links.
+
 ## Scroll to Bottom Button
 Good to use when importing many recording streaming links to reduce scrolling. This press lands you on the bottom to submit edits.
 
