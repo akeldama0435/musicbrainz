@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Import CDJapan Releases to MusicBrainz
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  Adds a button on CDJapan product pages that pre-fills a MusicBrainz release form using POST, including automatic artist MBID lookup
+// @version      0.2
+// @description  Adds a button on CDJapan product pages that pre-fills a MusicBrainz release form using POST, including automatic artist MBID lookup, plus MB icon next to artist
 // @author       Akeldama
 // @match        https://www.cdjapan.co.jp/product/*
 // @grant        none
@@ -59,6 +59,31 @@
             const artistEl = document.querySelector('.person > a:nth-child(1)');
             const artist = artistEl ? artistEl.textContent.trim() : 'Unknown Artist';
 
+            // Insert MusicBrainz icon next to artist
+            if (artistEl) {
+                const mbIconLink = document.createElement('a');
+                mbIconLink.href = '#'; // Temporary, will update after fetching MBID
+                mbIconLink.target = '_blank';
+                mbIconLink.style.marginLeft = '5px';
+                const mbIconImg = document.createElement('img');
+                mbIconImg.src = 'https://musicbrainz.org/static/images/favicons/android-chrome-192x192.png';
+                mbIconImg.alt = 'MusicBrainz';
+                mbIconImg.style.width = '16px';
+                mbIconImg.style.height = '16px';
+                mbIconImg.style.verticalAlign = 'middle';
+                mbIconLink.appendChild(mbIconImg);
+                artistEl.parentNode.insertBefore(mbIconLink, artistEl.nextSibling);
+
+                // Fetch MBID to update link
+                const mbid = await fetchArtistMBID(artist);
+                if (mbid) {
+                    mbIconLink.href = `https://musicbrainz.org/artist/${mbid}`;
+                } else {
+                    mbIconLink.title = 'MusicBrainz ID not found';
+                    mbIconLink.style.opacity = '0.5';
+                }
+            }
+
             // Extract catalog number
             const catalogEl = document.querySelector('div.row:nth-child(7) > div:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2)');
             const catalogNumber = catalogEl ? catalogEl.textContent.trim() : '';
@@ -71,11 +96,11 @@
             const releaseDateEl = document.querySelector('.basic-info > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1)');
             let day='', month='', year='';
             if (releaseDateEl) {
-                const dateStr = releaseDateEl.textContent.trim(); // e.g. "October 3, 2025"
+                const dateStr = releaseDateEl.textContent.trim();
                 const dateObj = new Date(dateStr);
                 if (!isNaN(dateObj)) {
                     day = dateObj.getDate();
-                    month = dateObj.getMonth() + 1; // months 0-11
+                    month = dateObj.getMonth() + 1;
                     year = dateObj.getFullYear();
                 }
             }
@@ -126,7 +151,7 @@
                 addInput('artist_credit.names.0.name', artist);
                 if (mbid) addInput('artist_credit.names.0.mbid', mbid);
                 addInput('labels.0.catalog_number', catalogNumber);
-                addInput('barcode', barcode); // Correct barcode field
+                addInput('barcode', barcode);
 
                 // Release date
                 addInput('date.year', year);
@@ -138,14 +163,14 @@
                 addInput('status', 'official');
                 addInput('language', 'Eng');
                 addInput('script', 'Latn');
-                addInput('packaging', 'Jewel Case'); // Added packaging
+                addInput('packaging', 'Jewel Case');
 
                 // Set edit note
                 addInput('edit_note', `Imported from ${window.location.href}`);
 
                 // URLs
                 addInput('urls.0.url', window.location.href);
-                addInput('urls.0.type', 79); // purchase_for_mail_order
+                addInput('urls.0.type', 79);
 
                 // Medium format
                 addInput('mediums.0.format', 'CD');
@@ -164,7 +189,7 @@
             });
 
         } catch (err) {
-            console.error('Failed to insert MusicBrainz button:', err);
+            console.error('Failed to insert MusicBrainz button or icon:', err);
         }
     }
 
