@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Add Harmony Link Button to MusicBrainz Release
 // @namespace    https://github.com/akeldama0435/musicbrainz_userscripts_repo
-// @version      0.3
+// @version      0.3.1
 // @description  Adds a centered-ish Harmony button near the tracklist heading, but only for Digital Media releases. 
 // @updateURL    https://github.com/akeldama0435/musicbrainz/blob/main/harmony_button.user.js
 // @downloadURL  https://github.com/akeldama0435/musicbrainz/blob/main/harmony_button.user.js
