@@ -7,7 +7,7 @@
 // @downloadURL  https://github.com/akeldama0435/musicbrainz/blob/main/harmony_button.user.js
 // @author       Akeldama
 // @icon         https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/MusicBrainz_Logo_Icon_%282016%29.svg/45px-MusicBrainz_Logo_Icon_%282016%29.svg.png?20210414232158
-// @match        *://*/*
+// @match        *://musicbrainz.org/*
 // @exclude      https://www.discogs.com/*
 // @exclude      https://musicbrainz.org/release/*/edit
 // @grant        none
