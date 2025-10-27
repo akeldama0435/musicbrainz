@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         Scroll to Bottom Button Top Center
 // @namespace    https://github.com/akeldama0435/musicbrainz_userscripts_repo
-// @version      0.1
+// @version      0.2
 // @description  Adds a fixed top-center button on MusicBrainz recording pages to scroll smoothly to the bottom of the page.
-// @author       You
+// @updateURL    https://github.com/akeldama0435/musicbrainz/blob/main/scroll_to_bottom_button.user.js
+// @downloadURL  https://github.com/akeldama0435/musicbrainz/blob/main/scroll_to_bottom_button.user.js
+// @author       Akeldama
 // @match        https://musicbrainz.org/recording/*/edit*
 // @grant        none
 // ==/UserScript==
