@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Import Ototoy Releases to MusicBrainz
 // @namespace    https://github.com/akeldama0435/musicbrainz_userscripts_repo
-// @version      0.1
+// @version      0.2
 // @description  Adds a button on Ototoy album pages to pre-fill a MusicBrainz release form using POST, including automatic artist MBID lookup and MB icon
+// @updateURL    https://github.com/akeldama0435/musicbrainz/blob/main/ototoy_importer.user.js
+// @downloadURL  https://github.com/akeldama0435/musicbrainz/blob/main/ototoy_importer.user.js
 // @author       Akeldama
 // @match        https://ototoy.jp/_/default/p/*
 // @grant        none
