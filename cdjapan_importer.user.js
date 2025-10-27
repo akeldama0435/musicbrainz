@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Import CDJapan Releases to MusicBrainz
 // @namespace    https://github.com/akeldama0435/musicbrainz_userscripts_repo
-// @version      0.2
+// @version      0.3
 // @description  Adds a button on CDJapan product pages that pre-fills a MusicBrainz release form using POST, including automatic artist MBID lookup, plus MB icon next to artist
+// @updateURL    https://github.com/akeldama0435/musicbrainz/blob/main/cdjapan_importer.user.js
+// @downloadURL  https://github.com/akeldama0435/musicbrainz/blob/main/cdjapan_importer.user.js
 // @author       Akeldama
 // @match        https://www.cdjapan.co.jp/product/*
 // @grant        none
