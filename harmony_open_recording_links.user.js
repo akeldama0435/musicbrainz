@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         Open Recording Edit Links Only (Harmony Release Actions)
 // @namespace    https://github.com/akeldama0435/musicbrainz_userscripts_repo/
-// @version      1.4
+// @version      1.5
 // @description  Adds a button on the top right on Harmony Actions to open only recording edit links after the page renders dynamically.
 // @updateURL    https://github.com/akeldama0435/musicbrainz/blob/main/harmony_open_recording_links.user.js
 // @downloadURL  https://github.com/akeldama0435/musicbrainz/blob/main/harmony_open_recording_links.user.js
 // @author       Akeldama
+// @aiassisted
 // @icon         https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/MusicBrainz_Logo_Icon_%282016%29.svg/45px-MusicBrainz_Logo_Icon_%282016%29.svg.png?20210414232158
 // @match        https://harmony.pulsewidth.org.uk/release/actions*
 // @grant        none
