@@ -2,10 +2,11 @@
 // @name        Paste a date
 // @namespace   https://github.com/akeldama0435/musicbrainz_userscripts_repo
 // @description Paste a full or partial date directly into any year field on MusicBrainz (release + relationship editors)
-// @version     0.4
+// @version     0.5
 // @updateURL   https://github.com/akeldama0435/musicbrainz/blob/main/paste_a_date.user.js
 // @downloadURL https://github.com/akeldama0435/musicbrainz/blob/main/paste_a_date.user.js
-// @author      Akeldama
+// @author      nikki (original author)
+// @aigenerated
 // @icon         https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/MusicBrainz_Logo_Icon_%282016%29.svg/45px-MusicBrainz_Logo_Icon_%282016%29.svg.png?20210414232158
 // @match       *://musicbrainz.org/*
 // @match       *://beta.musicbrainz.org/*
