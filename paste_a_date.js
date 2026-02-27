@@ -1,0 +1,137 @@
+// ==UserScript==
+// @name        Paste a date
+// @namespace   https://github.com/akeldama0435/musicbrainz_userscripts_repo
+// @description Paste a full or partial date directly into any year field on MusicBrainz (release + relationship editors)
+// @version     0.5
+// @updateURL   https://github.com/akeldama0435/musicbrainz/blob/main/paste_a_date.user.js
+// @downloadURL https://github.com/akeldama0435/musicbrainz/blob/main/paste_a_date.user.js
+// @author      nikki (original author)
+// @aigenerated
+// @icon         https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/MusicBrainz_Logo_Icon_%282016%29.svg/45px-MusicBrainz_Logo_Icon_%282016%29.svg.png?20210414232158
+// @match       *://musicbrainz.org/*
+// @match       *://beta.musicbrainz.org/*
+// @grant       none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // ---------------------------
+    //  Date parsing helpers
+    // ---------------------------
+
+    const MONTHS = {
+        jan: "01", january: "01",
+        feb: "02", february: "02",
+        mar: "03", march: "03",
+        apr: "04", april: "04",
+        may: "05",
+        jun: "06", june: "06",
+        jul: "07", july: "07",
+        aug: "08", august: "08",
+        sep: "09", september: "09",
+        oct: "10", october: "10",
+        nov: "11", november: "11",
+        dec: "12", december: "12"
+    };
+
+    function clean_date(y, m, d) {
+        if (!y) return null;
+        if (y.length === 2) y = (y > 20 ? "19" : "20") + y;
+        if (m && m.length === 1) m = "0" + m;
+        if (d && d.length === 1) d = "0" + d;
+        return [y, m, d].filter(Boolean).join("-");
+    }
+
+    function parseDateString(str) {
+        if (!str) return null;
+        str = str.trim().toLowerCase();
+
+        // Check for month names: e.g., "feb 25 2025" or "25 feb 2025"
+        const monthNameRegex1 = /^([a-z]+)\s+(\d{1,2})(?:,\s*|\s+)(\d{2,4})$/; // Feb 25 2025
+        const monthNameRegex2 = /^(\d{1,2})\s+([a-z]+)(?:,\s*|\s+)(\d{2,4})$/; // 25 Feb 2025
+        let m;
+        if ((m = monthNameRegex1.exec(str))) return clean_date(m[3], MONTHS[m[1]], m[2]);
+        if ((m = monthNameRegex2.exec(str))) return clean_date(m[3], MONTHS[m[2]], m[1]);
+
+        // Simple numeric formats
+        const ymd = /^\W*([0-9]{2,4})(?:\W+([0-9]{1,2})(?:\W+([0-9]{1,2}))?)?\W*$/;
+        const dmy = /^\W*(?:(0?[1-9]|[12][0-9]|3[01])\W+)?(0?[1-9]|1[0-2])\W+([0-9]{2,4})\W*$/;
+
+        if ((m = ymd.exec(str))) return clean_date(m[1], m[2], m[3]);
+        if ((m = dmy.exec(str))) return clean_date(m[3], m[2], m[1]);
+        return null;
+    }
+
+    // ---------------------------
+    //  React-safe input helpers
+    // ---------------------------
+
+    function triggerReactInput(el, newValue) {
+        const prototype = Object.getPrototypeOf(el);
+        const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+        descriptor.set.call(el, newValue);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function setDate(baseInput, y, m, d) {
+        const container = baseInput.closest('td, div, span');
+        if (!container) return;
+
+        const year = container.querySelector('input.partial-date-year');
+        const month = container.querySelector('input.partial-date-month');
+        const day = container.querySelector('input.partial-date-day');
+
+        requestAnimationFrame(() => {
+            if (year) triggerReactInput(year, y || '');
+            if (month) triggerReactInput(month, m || '');
+            if (day) triggerReactInput(day, d || '');
+
+            setTimeout(() => {
+                if (year) triggerReactInput(year, y || '');
+                if (month) triggerReactInput(month, m || '');
+                if (day) triggerReactInput(day, d || '');
+            }, 150);
+        });
+    }
+
+    // ---------------------------
+    //  Paste handler
+    // ---------------------------
+
+    function handlePaste(event) {
+        const str = (event.clipboardData || window.clipboardData).getData('text');
+        const parsed = parseDateString(str);
+        if (!parsed) return;
+
+        event.preventDefault();
+
+        const [y, m, d] = parsed.split('-');
+        setDate(event.target, y, m, d);
+
+        const mark = document.createElement('span');
+        mark.textContent = ' ✓';
+        mark.style.color = 'green';
+        mark.style.fontWeight = 'bold';
+        event.target.insertAdjacentElement('afterend', mark);
+        setTimeout(() => mark.remove(), 1000);
+    }
+
+    // ---------------------------
+    //  Attach logic
+    // ---------------------------
+
+    function attachListeners() {
+        document.querySelectorAll('input.partial-date-year').forEach(input => {
+            if (input._pasteAdateAttached) return;
+            input._pasteAdateAttached = true;
+            input.addEventListener('paste', handlePaste);
+        });
+    }
+
+    attachListeners();
+    const observer = new MutationObserver(attachListeners);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+})();
